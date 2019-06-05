@@ -63,9 +63,8 @@ class App extends Component {
 
   render() {
     const { user, errors } = this.state;
-    console.log(errors);
     return (
-      <div className="App">
+      <div className="container">
         <div className="App-header">
           <img src={logo} alt="logo" className="mainLogo" />
           <h2>Welcome to GitHub Spy</h2>
@@ -74,7 +73,7 @@ class App extends Component {
           If GitHub is prohibited in your country, you can type a GitHub
           username here and check all the repositories
         </p>
-        <div className="App-intro container">
+        <div className="App-intro mb-3">
           <hr />
           <div className="col-6 mx-auto mb-3">
             <input
@@ -87,9 +86,7 @@ class App extends Component {
               placeholder="Enter GitHub Username"
             />
             {errors.usernameError && (
-              <div className="invalid-feedback">
-                {errors.usernameError}
-              </div>
+              <div className="invalid-feedback">{errors.usernameError}</div>
             )}
             {errors.responseError && (
               <div className="alert alert-danger mt-2" role="alert">
@@ -110,7 +107,10 @@ class App extends Component {
             </button>
           )}
         </div>
-        <UserInformation user={user} errors={errors} />
+        <hr></hr>
+        {!errors.responseError && Object.keys(user).length > 0 && (
+          <UserInformation user={user} />
+        )}
       </div>
     );
   }
