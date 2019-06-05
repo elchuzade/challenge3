@@ -12,8 +12,7 @@ class App extends Component {
       username: '',
       user: {},
       errors: {},
-      fetchedUser: false,
-      fetchedRepos: false
+      fetchedUser: false
     };
     // for username min is 1 character and max is 39 characters according to the GitHub signin rules
   }
@@ -37,6 +36,7 @@ class App extends Component {
   };
   getUserInformation = () => {
     const errors = {};
+    const user = {};
     if (this.state.username.length < 1 || this.state.username.length > 39) {
       errors.usernameError = 'Username must be between 1 and 39 characters';
       this.setState({ errors });
@@ -46,7 +46,11 @@ class App extends Component {
         response => {
           if (response.status === 200) {
             response.json().then(data => {
-              this.setState({ fetchedUser: true, user: data, errors: {} });
+              // Take only those fields that I need
+              user.name = data.name;
+              user.bio = data.bio;
+              user.avatar_url = data.avatar_url;
+              this.setState({ fetchedUser: true, user, errors: {} });
             });
           } else {
             errors.userError = response.statusText;
@@ -54,12 +58,19 @@ class App extends Component {
           }
         }
       );
+      console.log(this.state);
       // Fetch repos
       fetch(`http://api.github.com/users/${this.state.username}/repos`).then(
         response => {
           if (response.status === 200) {
             response.json().then(data => {
-              this.setState({ fetchedRepos: true, repos: data, errors: {} });
+              // Decrease the response down to only the key value pairs that I need
+              let slimData = data.map(({ name, description, html_url }) => ({
+                name,
+                description,
+                html_url
+              }));
+              this.setState({ repos: slimData, errors: {} });
             });
           } else {
             errors.userError = response.statusText;

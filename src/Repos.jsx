@@ -12,7 +12,7 @@ const Repos = props => (
     )}
     <div className="row">
       {props.repos.map(repo => (
-        <div className="col-12" key={repo.id}>
+        <div className="col-12" key={repo.name}>
           <a href={repo.html_url} target="_blank">
             <h4>{repo.name}</h4>
           </a>
