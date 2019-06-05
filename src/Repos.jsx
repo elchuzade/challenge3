@@ -6,13 +6,16 @@ const Repos = props => (
     {props.repos.length > 0 && (
       <div className="row">
         <div className="col-12">
-          <h4 className="text-center">Check out my repos</h4>
+          <h4 className="text-center my-3">Check out my repos</h4>
         </div>
       </div>
     )}
     <div className="row">
       {props.repos.map(repo => (
-        <div className="col-12">
+        <div className="col-12" key={repo.id}>
+          <a href={repo.html_url} target="_blank">
+            <h4>{repo.name}</h4>
+          </a>
           <p className="text-muted lead">
             {repo.description ? (
               repo.description

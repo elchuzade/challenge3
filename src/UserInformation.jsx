@@ -11,7 +11,9 @@ const UserInformation = props => (
       <div className="col-9">
         <div className="row">
           <div className="col-12">
-            <h3>{props.user.name}</h3>
+            <a href={props.user.html_url} target="_blank">
+              <h3>{props.user.name}</h3>
+            </a>
           </div>
           <div className="col-12">
             <p className="lead">{props.user.bio}</p>
