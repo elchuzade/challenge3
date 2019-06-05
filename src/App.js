@@ -8,6 +8,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      username: '',
       user: {},
       errors: {},
       fetched: false
@@ -21,6 +22,15 @@ class App extends Component {
       delete updatedErrors.usernameError;
       this.setState({ errors: updatedErrors });
     }
+    this.setState({ username: e.target.value });
+  };
+  refresh = () => {
+    this.setState({
+      username: '',
+      fetched: false,
+      user: {},
+      errors: {}
+    });
   };
   getUserInformation = () => {
     /*
@@ -31,27 +41,29 @@ class App extends Component {
          fetching resources (including across the network).
        2) Maybe you want to update the state here.
     */
-    const name = this.refs.name.value;
     const errors = {};
-    if (name.length < 1 || name.length > 39) {
+    if (this.state.username.length < 1 || this.state.username.length > 39) {
       errors.usernameError = 'Username must be between 1 and 39 characters';
       this.setState({ errors });
     } else {
-      fetch(`http://api.github.com/users/${name}`).then(response => {
-        if (response.status === 200) {
-          response.json().then(data => {
-            this.setState({ fetched: true, user: data, errors: {} });
-          });
-        } else {
-          this.setState({ errors });
-          errors.responseError = response.statusText;
+      fetch(`http://api.github.com/users/${this.state.username}`).then(
+        response => {
+          if (response.status === 200) {
+            response.json().then(data => {
+              this.setState({ fetched: true, user: data, errors: {} });
+            });
+          } else {
+            errors.responseError = response.statusText;
+            this.setState({ errors });
+          }
         }
-      });
+      );
     }
   };
 
   render() {
     const { user, errors } = this.state;
+    console.log(errors);
     return (
       <div className="App">
         <div className="App-header">
@@ -71,18 +83,32 @@ class App extends Component {
               className={classnames('form-control', {
                 'is-invalid': errors.usernameError
               })}
-              ref="name"
+              value={this.state.username}
               placeholder="Enter GitHub Username"
             />
-            {this.state.errors.usernameError && (
+            {errors.usernameError && (
               <div className="invalid-feedback">
-                {this.state.errors.usernameError}
+                {errors.usernameError}
+              </div>
+            )}
+            {errors.responseError && (
+              <div className="alert alert-danger mt-2" role="alert">
+                {this.state.errors.responseError}
               </div>
             )}
           </div>
-          <button className="btn btn-primary" onClick={this.getUserInformation}>
-            Show Repos
-          </button>
+          {!this.state.fetched ? (
+            <button
+              className="btn btn-primary"
+              onClick={this.getUserInformation}
+            >
+              Show Repos
+            </button>
+          ) : (
+            <button className="btn btn-primary" onClick={this.refresh}>
+              Another One
+            </button>
+          )}
         </div>
         <UserInformation user={user} errors={errors} />
       </div>
