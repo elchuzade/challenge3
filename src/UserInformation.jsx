@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const UserInformation = props => (
-  <div className="container">
+  <div className="container mb-3">
     <div className="row">
       {console.log(props.user)}
       <div className="col-3">

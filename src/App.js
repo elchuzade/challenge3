@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import UserInformation from './UserInformation';
+import Repos from './Repos';
 import logo from '../public/spy.svg';
 import classnames from 'classnames';
 
@@ -11,7 +12,8 @@ class App extends Component {
       username: '',
       user: {},
       errors: {},
-      fetched: false
+      fetchedUser: false,
+      fetchedRepos: false
     };
     // for username min is 1 character and max is 39 characters according to the GitHub signin rules
   }
@@ -27,33 +29,40 @@ class App extends Component {
   refresh = () => {
     this.setState({
       username: '',
-      fetched: false,
+      fetchedUser: false,
       user: {},
+      repos: [],
       errors: {}
     });
   };
   getUserInformation = () => {
-    /*
-      TODO: fetch a user from the GitHub API
-
-      TIPS:
-       1) The Fetch API provides an interface for
-         fetching resources (including across the network).
-       2) Maybe you want to update the state here.
-    */
     const errors = {};
     if (this.state.username.length < 1 || this.state.username.length > 39) {
       errors.usernameError = 'Username must be between 1 and 39 characters';
       this.setState({ errors });
     } else {
+      // Fetch user data
       fetch(`http://api.github.com/users/${this.state.username}`).then(
         response => {
           if (response.status === 200) {
             response.json().then(data => {
-              this.setState({ fetched: true, user: data, errors: {} });
+              this.setState({ fetchedUser: true, user: data, errors: {} });
             });
           } else {
-            errors.responseError = response.statusText;
+            errors.userError = response.statusText;
+            this.setState({ errors });
+          }
+        }
+      );
+      // Fetch repos
+      fetch(`http://api.github.com/users/${this.state.username}/repos`).then(
+        response => {
+          if (response.status === 200) {
+            response.json().then(data => {
+              this.setState({ fetchedRepos: true, repos: data, errors: {} });
+            });
+          } else {
+            errors.userError = response.statusText;
             this.setState({ errors });
           }
         }
@@ -62,7 +71,7 @@ class App extends Component {
   };
 
   render() {
-    const { user, errors } = this.state;
+    const { user, repos, errors } = this.state;
     return (
       <div className="container">
         <div className="App-header">
@@ -88,13 +97,13 @@ class App extends Component {
             {errors.usernameError && (
               <div className="invalid-feedback">{errors.usernameError}</div>
             )}
-            {errors.responseError && (
+            {errors.reposError && (
               <div className="alert alert-danger mt-2" role="alert">
-                {this.state.errors.responseError}
+                {this.state.errors.reposError}
               </div>
             )}
           </div>
-          {!this.state.fetched ? (
+          {!this.state.fetchedUser ? (
             <button
               className="btn btn-primary"
               onClick={this.getUserInformation}
@@ -107,9 +116,12 @@ class App extends Component {
             </button>
           )}
         </div>
-        <hr></hr>
-        {!errors.responseError && Object.keys(user).length > 0 && (
+        <hr />
+        {!errors.userError && Object.keys(user).length > 0 && (
           <UserInformation user={user} />
+        )}
+        {!errors.reposError && repos && repos.length > 0 && (
+          <Repos repos={repos} />
         )}
       </div>
     );
